@@ -113,6 +113,8 @@ void induction::handlemqtt(unsigned char *payload, unsigned int length)
   }
   if (doc["state"] == "off")
     newPower = 0;
+  else if (hbTripped) // CBPi heartbeat lost: refuse, and answer with a retained off
+    hbPendingInd = true;
   else
     newPower = doc["power"];
 }
@@ -198,9 +200,10 @@ void induction::inductionNewPower(const int16_t &val)
 
 void induction::updatePower()
 {
-  if (power != newPower) // Neuer Befehl empfangen
+  uint8_t target = hbHold() ? 0 : newPower; // CBPi heartbeat watchdog holds the hob off
+  if (power != target) // Neuer Befehl empfangen
   {
-    power = newPower;
+    power = target;
     timeTurnedoff = 0;
     isInduon = true;
     if (power == 0)
@@ -322,6 +325,14 @@ void induction::indERR()
     Update();
   }
 }
+void induction::hbOff()
+{
+  newPower = 0;
+  powerLevelBeforeError = 0;
+  induction_state = true; // stop MQTT/sensor error recovery switching it back on
+  Update();
+}
+
 int8_t induction::getPinWhite()
 {
   return PIN_WHITE;

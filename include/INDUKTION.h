@@ -70,6 +70,7 @@ public:
     void sendCommand(int16_t command[33]);
     void readInput();
     void indERR();
+    void hbOff();
     int8_t getPinWhite();
     int8_t getPinYellow();
     int8_t getPinInterrupt();

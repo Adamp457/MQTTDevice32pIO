@@ -55,6 +55,12 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
 
   // char payload_msg[length];
 
+  if (hbTimeout > 0 && strcmp(topic, cbpi4heartbeat_topic) == 0)
+  {
+    hbHandlemqtt(payload, length);
+    return;
+  }
+
   if (inductionCooker.getTopic() == topic)
   {
     inductionCooker.handlemqtt(payload, length);
@@ -178,6 +184,8 @@ void handleRequestMisc()
   doc["dev"] = devBranch;
   doc["e_mqtt"] = StopOnMQTTError;
   doc["d_mqtt"] = wait_on_error_mqtt / 1000;
+  doc["hb_timeout"] = hbTimeout / 1000;
+  doc["hb_tripped"] = hbTripped;
   doc["dsa"] = wait_on_Sensor_error_actor / 1000;
   doc["dsi"] = wait_on_Sensor_error_induction / 1000;
   doc["s_mqtt"] = mqtt_state; // Anzeige MQTT Status -> mqtt_state verzögerter Status!

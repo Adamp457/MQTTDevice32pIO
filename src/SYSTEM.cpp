@@ -439,6 +439,7 @@ void EM_MQTTSUBSCRIBE() // MQTT subscribe
     DEBUG_VERBOSE("SYS", "MQTT connected! Subscribing...");
 #endif
     mqtt_state = true; // MQTT state ok
+    hbSubscribe();
     for (int i = 0; i < numberOfActors; i++)
     {
       actors[i].mqtt_subscribe();

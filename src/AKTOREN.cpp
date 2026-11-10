@@ -11,7 +11,7 @@ void Actor::Update()
     return;
   if (isPin(pin_actor))
   {
-    if (isOn && power_actor > 0)
+    if (isOn && power_actor > 0 && !hbHold())
     {
       if (millis() > powerLast + DUTYCYLCE)
       {
@@ -134,6 +134,11 @@ void Actor::handlemqtt(unsigned char *payload)
   }
   if (doc["state"] == "on")
   {
+    if (hbTripped) // CBPi heartbeat lost: refuse, and answer with a retained off
+    {
+      hbPendingActors |= 1 << (this - actors);
+      return;
+    }
     isOn = true;
     int16_t newPower = doc["power"];
     power_actor = constrain(newPower, 0, 100);

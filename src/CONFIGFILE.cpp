@@ -33,6 +33,9 @@ bool loadConfig()
 
   StopOnMQTTError = miscObj["enable_mqtt"] | 0;
   wait_on_error_mqtt = miscObj["delay_mqtt"] | 120000;
+  hbTimeout = (miscObj["hb_timeout"] | 0) * 1000UL; // s in config.txt, 0 = off
+  if (hbTimeout > 0 && hbTimeout < HB_MIN_TIMEOUT)
+    hbTimeout = HB_MIN_TIMEOUT;
 
   PIN_BUZZER = StringToPin(miscObj["buz"]);
   if (PIN_BUZZER != -100)
@@ -62,6 +65,7 @@ bool loadConfig()
   DEBUG_INFO("CFG", "Wait on sensor error actors: %ul sec", wait_on_Sensor_error_actor / 1000);
   DEBUG_INFO("CFG", "Wait on sensor error induction: %ul sec", wait_on_Sensor_error_induction / 1000);
   DEBUG_INFO("CFG", "Switch off actors on MQTT error: %d after %ul sec", StopOnMQTTError, (wait_on_error_mqtt / 1000));
+  DEBUG_INFO("CFG", "CBPi heartbeat watchdog timeout: %lu sec (0 = off)", hbTimeout / 1000);
   DEBUG_INFO("CFG", "Buzzer: %d mqttBuzzer: %d", PIN_BUZZER, mqttBuzzer);
   DEBUG_INFO("CFG", "Display: %d startPage: %d Fermenter: %d", useDisplay, startPage, useFerm);
   DEBUG_INFO("CFG", "mDNS: %d name: %s", startMDNS, nameMDNS);
@@ -261,6 +265,7 @@ bool saveConfig()
   miscObj["del_sen_ind"] = wait_on_Sensor_error_induction;
   miscObj["delay_mqtt"] = wait_on_error_mqtt;
   miscObj["enable_mqtt"] = (int)StopOnMQTTError;
+  miscObj["hb_timeout"] = hbTimeout / 1000;
   // miscObj["buzzer"] = (int)startBuzzer;
   miscObj["buz"] = PinToString(PIN_BUZZER);
   // if (startBuzzer)

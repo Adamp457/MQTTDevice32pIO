@@ -457,6 +457,7 @@ void loop()
   }
 
   TickerTime.update();
+  hbCheck(); // runs without WiFi too: losing WiFi must still trip the watchdog
 
   if (numberOfSensors > 0) // Ticker Sensoren
     TickerSen.update();

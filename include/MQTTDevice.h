@@ -442,6 +442,7 @@ extern InnuNex nextion;
 #include "TICKERCALLBACK.h"
 #include "WEB.h"
 #include "WEBUPDATE.h"
+#include "HEARTBEAT.h"
 
 extern bool current_step;
 struct Kettles
