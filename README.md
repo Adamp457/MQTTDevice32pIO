@@ -32,6 +32,7 @@ MQTTDevice32 ist ein Arduino Sketch für den Wemos ESP8266 D1 mini und den ESP32
 * mDNS Support
 * Event handling
 * CBPi Heartbeat Watchdog (Fork): alle Aktoren aus, wenn CraftBeerPi ausfällt – siehe [docs/heartbeat.md](docs/heartbeat.md)
+* Leistungsgruppen (Fork): zwei oder mehr Heizstäbe teilen sich 100 % und sind nie gleichzeitig an – siehe [docs/power-groups.md](docs/power-groups.md)
 * Dateiexplorer
 * Unterstützung für versch. Sprachen
 

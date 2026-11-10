@@ -13,6 +13,7 @@ extern uint16_t hbPendingActors; // bit i: actors[i] still needs its retained of
 extern bool hbPendingInd;
 
 bool hbHold();
+void hbSetTimeout(unsigned long seconds);
 void hbSubscribe();
 void hbHandlemqtt(unsigned char *payload, unsigned int length);
 void hbCheck();

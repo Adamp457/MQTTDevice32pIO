@@ -134,5 +134,11 @@
     "MISC_UPDATE_TEXT2": "File upload or web update?",
     "MISC_UPDATE_TEXT3": "MQTTDevice4 restarts automatically",
     "MISC_UPDATE_TEXT4": "File update",
-    "MISC_UPDATE_TEXT5": " WebUpdate"
+    "MISC_UPDATE_TEXT5": " WebUpdate",
+    "ACT_GRP": "Power-share group",
+    "ACT_GRP_TT": "0 = none. Actors with the same number split 100 % between them and are never on together (e.g. two elements on one circuit)",
+    "MISC_HB": "CBPi heartbeat timeout [sec]",
+    "MISC_HB_TT": "0 = off. Switch everything off if the cbpi4-heartbeat-watchdog plugin goes silent this long (min 5)",
+    "MISC_DEAD": "Power-group dead time [ms]",
+    "MISC_DEAD_TT": "Gap between two actors of a power-share group (0-50 ms)"
 }

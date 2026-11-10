@@ -134,5 +134,11 @@
     "MISC_UPDATE_TEXT2": "Filopplasting eller WebUpdate?",
     "MISC_UPDATE_TEXT3": "MQTTDevice4 starter automatisk på nytt",
     "MISC_UPDATE_TEXT4": "Filoppdatering",
-    "MISC_UPDATE_TEXT5": " WebUpdate"
+    "MISC_UPDATE_TEXT5": " WebUpdate",
+    "ACT_GRP": "Effektgruppe",
+    "ACT_GRP_TT": "0 = ingen. Aktuatorer med samme nummer deler 100 % og er aldri på samtidig (f.eks. to elementer på én kurs)",
+    "MISC_HB": "CBPi heartbeat tidsavbrudd [sek]",
+    "MISC_HB_TT": "0 = av. Slå av alt hvis cbpi4-heartbeat-watchdog-pluginen er stille så lenge (min 5)",
+    "MISC_DEAD": "Dødtid effektgruppe [ms]",
+    "MISC_DEAD_TT": "Pause mellom to aktuatorer i en effektgruppe (0-50 ms)"
 }

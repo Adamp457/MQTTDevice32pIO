@@ -25,6 +25,23 @@ bool hbHold()
   return hbTimeout > 0 && (hbTripped || !hbSeen);
 }
 
+void hbSetTimeout(unsigned long seconds) // 0 = off
+{
+  unsigned long ms = seconds * 1000UL;
+  if (ms > 0 && ms < HB_MIN_TIMEOUT)
+    ms = HB_MIN_TIMEOUT;
+  if (ms > 0 && hbTimeout == 0)
+    hbLast = millis(); // switched on while running: one timeout of grace, not an instant trip
+  if (ms == 0)
+  {
+    hbTripped = false; // switched off: stop refusing "on"
+    hbPendingActors = 0;
+    hbPendingInd = false;
+  }
+  hbTimeout = ms;
+  hbSubscribe();
+}
+
 void hbSubscribe()
 {
   if (hbTimeout > 0 && pubsubClient.connected())

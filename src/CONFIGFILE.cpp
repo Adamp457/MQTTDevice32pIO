@@ -33,9 +33,7 @@ bool loadConfig()
 
   StopOnMQTTError = miscObj["enable_mqtt"] | 0;
   wait_on_error_mqtt = miscObj["delay_mqtt"] | 120000;
-  hbTimeout = (miscObj["hb_timeout"] | 0) * 1000UL; // s in config.txt, 0 = off
-  if (hbTimeout > 0 && hbTimeout < HB_MIN_TIMEOUT)
-    hbTimeout = HB_MIN_TIMEOUT;
+  hbSetTimeout(miscObj["hb_timeout"] | 0UL); // s, 0 = off
 
   PIN_BUZZER = StringToPin(miscObj["buz"]);
   if (PIN_BUZZER != -100)
@@ -60,6 +58,7 @@ bool loadConfig()
   startSPI = miscObj["spi"] | 0;
   selLang = miscObj["lang"] | 0;
   DUTYCYLCE = miscObj["dutyCycle"] | 5000;
+  pwmDeadTime = min(miscObj["pwmDead"] | 20UL, (unsigned long)PWM_DEAD_MAX);
   SENCYLCE = miscObj["senCycle"] | 1;
 #ifdef ESP32
   DEBUG_INFO("CFG", "Wait on sensor error actors: %ul sec", wait_on_Sensor_error_actor / 1000);
@@ -83,6 +82,7 @@ bool loadConfig()
     if (i < numberOfActors)
     {
       actors[i].change(StringToPin(actorObj["PIN"]), actorObj["SCRIPT"], actorObj["NAME"], actorObj["INV"], actorObj["SW"]);
+      actors[i].setGroup(actorObj["GRP"] | 0);
 #ifdef ESP32
       DEBUG_INFO("CFG", "Actor #: %d Name: %s MQTT: %s PIN: %s INV: %d SW: %d", (i + 1), actorObj["NAME"].as<const char *>(), actorObj["SCRIPT"].as<const char *>(), actorObj["PIN"].as<const char *>(), actorObj["INV"].as<int>(), actorObj["SW"].as<int>());
 #endif
@@ -210,6 +210,7 @@ bool saveConfig()
     actorsObj["SCRIPT"] = actors[i].getActorTopic();
     actorsObj["INV"] = (int)actors[i].getInverted();
     actorsObj["SW"] = (int)actors[i].getActorSwitch();
+    actorsObj["GRP"] = actors[i].getGroup();
 #ifdef ESP32
     DEBUG_INFO("CFG", "Actor #: %d Name: %s MQTT: %s PIN: %s INV: %d SW: %d", (i + 1), actors[i].getActorName().c_str(), actors[i].getActorTopic().c_str(), PinToString(actors[i].getPinActor()).c_str(), actors[i].getInverted(), actors[i].getActorSwitch());
 #endif
@@ -290,6 +291,7 @@ bool saveConfig()
   miscObj["spi"] = (int)startSPI;
   miscObj["lang"] = selLang;
   miscObj["dutyCycle"] = DUTYCYLCE;
+  miscObj["pwmDead"] = pwmDeadTime;
   miscObj["senCycle"] = SENCYLCE;
   miscObj["VER"] = Version;
 

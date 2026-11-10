@@ -22,15 +22,13 @@ It ignores the beat's actor list, because it already knows its own topics.
 
 ## Enable
 
-There is no web UI field. Set `hb_timeout` (seconds) in the `misc` section of
-`config.txt` with the file explorer (`/edit`), then reboot:
-
-```json
-"misc": [{ ..., "hb_timeout": 15, ... }]
-```
+Settings → event handling tab → **CBPi heartbeat timeout [sec]**, e.g. 15. It
+applies at once, with no reboot. Turning it on mid-brew gives one timeout of
+grace rather than an instant trip. It's stored as `hb_timeout` in the `misc`
+section of `config.txt`.
 
 `0` or a missing value turns the watchdog off (upstream behaviour). The minimum
-is 5 s. Saving settings in the web UI keeps the value.
+is 5 s. Turning it off also clears a trip that's in progress.
 
 `/reqMisc` reports `hb_timeout` and `hb_tripped`.
 

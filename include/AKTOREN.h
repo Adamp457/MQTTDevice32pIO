@@ -2,11 +2,11 @@
 #define ACTOREN_H
 
 #include <Arduino.h>
+#include "PWMSCHEDULE.h"
 
 class Actor
 {
 private:
-unsigned long powerLast; // Zeitmessung für High oder Low
   unsigned char OFF;
   unsigned char ON;
   int8_t pin_actor = -100; // the number of the LED pin
@@ -19,6 +19,8 @@ unsigned long powerLast; // Zeitmessung für High oder Low
   bool actor_state = true;      // Error state actor
   bool isOn;
   bool old_isOn;
+  uint8_t group = 0;         // power-share group, 0 = none
+  uint8_t power_applied = 0; // % actually given after group balancing
 
 public:
     Actor(int8_t, String, String, bool, bool);
@@ -43,7 +45,15 @@ public:
     int8_t getPinActor();
     uint8_t getActorPower();
     void setOldIsOn();
+    void output(const bool &on);
+    uint8_t getGroup();
+    void setGroup(const uint8_t &val);
+    uint8_t getRequest();
+    uint8_t getAppliedPower();
+    void setAppliedPower(const uint8_t &val);
 };
+
+void updateActorsPWM();
 
 void handleActors(bool checkAct);                           
 void handleRequestActors();  

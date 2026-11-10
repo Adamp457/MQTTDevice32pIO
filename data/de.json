@@ -134,5 +134,11 @@
   "MISC_UPDATE_TEXT2": "Datei Update oder WebUpdate?",
   "MISC_UPDATE_TEXT3": "Das MQTTDevice startet automatisch mehrfach neu",
   "MISC_UPDATE_TEXT4": "Datei Update",
-  "MISC_UPDATE_TEXT5": " WebUpdate"
+  "MISC_UPDATE_TEXT5": " WebUpdate",
+    "ACT_GRP": "Leistungsgruppe",
+    "ACT_GRP_TT": "0 = keine. Aktoren mit gleicher Nummer teilen sich 100 % und sind nie gleichzeitig an (z. B. zwei Heizstäbe an einem Stromkreis)",
+    "MISC_HB": "CBPi Heartbeat Timeout [sek]",
+    "MISC_HB_TT": "0 = aus. Alles ausschalten, wenn das Plugin cbpi4-heartbeat-watchdog so lange schweigt (min 5)",
+    "MISC_DEAD": "Totzeit Leistungsgruppe [ms]",
+    "MISC_DEAD_TT": "Pause zwischen zwei Aktoren einer Leistungsgruppe (0-50 ms)"
 }

@@ -193,6 +193,7 @@ void handleRequestMisc()
   doc["ntp"] = ntpServer;
   doc["zone"] = ntpZone;
   doc["duty"] = DUTYCYLCE;
+  doc["dead"] = pwmDeadTime;
   doc["sen"] = SENCYLCE;
 #ifdef ESP32
   doc["logCFG"] = getTagLevel("CFG");
@@ -360,6 +361,8 @@ void handleSetMisc()
   strlcpy(ntpZone, doc["zone"] | NTP_ZONE, maxNTPSign);
   startSPI = doc["spi"];
   DUTYCYLCE = doc["duty"];
+  pwmDeadTime = min(doc["dead"] | pwmDeadTime, (unsigned long)PWM_DEAD_MAX);
+  hbSetTimeout(doc["hb_timeout"] | hbTimeout / 1000);
   SENCYLCE = doc["sen"];
 #ifdef ESP32
   setTagLevel("CFG", doc["logCFG"]);

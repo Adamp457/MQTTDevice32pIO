@@ -65,6 +65,7 @@ struct SSESubscription subscription[SSE_MAX_CHANNELS];
 uint8_t subscriptionCount = 0;
 
 int64_t DUTYCYLCE = 5000; // Aktoren und HLT
+unsigned long pwmDeadTime = 20; // ms, one 50 Hz cycle
 uint16_t SENCYLCE = 1;    // Aktoren und HLT
 bool senRes = false;
 bool startSPI = false;
@@ -462,7 +463,15 @@ void loop()
   if (numberOfSensors > 0) // Ticker Sensoren
     TickerSen.update();
   if (numberOfActors > 0) // Ticker Aktoren
+  {
+    static unsigned long lastPWM = 0;
+    if (millis() - lastPWM >= PWM_UPDATE)
+    {
+      lastPWM = millis();
+      updateActorsPWM();
+    }
     TickerAct.update();
+  }
   if (inductionStatus) // Ticker Induktion
     TickerInd.update();
   if (useDisplay) // Ticker Display

@@ -1,6 +1,4 @@
 .pio
 .vscode/
-test/
 lib/
-web/
 reduce_index.cmd

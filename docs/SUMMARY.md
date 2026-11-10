@@ -10,6 +10,7 @@
 * [Updates](Update.md)
 * [Configuration](Configuration.md)
 * [CBPi heartbeat watchdog](heartbeat.md)
+* [Power-share groups](power-groups.md)
 * [Backup & Restore](backup.md)
 * [Display](display.md)
 * [circuit board](circuit.md)

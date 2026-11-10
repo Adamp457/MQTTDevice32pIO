@@ -201,6 +201,9 @@ extern uint8_t numberOfSensors; // Gesamtzahl der Sensoren
 extern unsigned char addressesFound[NUMBEROFSENSORSMAX][8];
 
 extern int64_t DUTYCYLCE; // Aktoren und HLT
+extern unsigned long pwmDeadTime; // ms gap between power-group windows
+#define PWM_UPDATE 20     // ms, actor PWM resolution
+#define PWM_DEAD_MAX 50   // ms; 15 actors x 50 ms still fits the 1000 ms minimum period
 extern uint8_t numberOfActors;  // Gesamtzahl der Aktoren
 
 // WiFi

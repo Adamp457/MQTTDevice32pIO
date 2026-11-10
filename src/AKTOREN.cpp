@@ -5,39 +5,16 @@ Actor::Actor(int8_t pin, String argument, String aname, bool ainverted, bool asw
   change(pin, argument, aname, ainverted, aswitchable);
 }
 
-void Actor::Update()
+void Actor::Update() // switch off at once; switching on is updateActorsPWM()'s job
 {
-  if (pin_actor == -100)
-    return;
+  if (!isOn || power_actor == 0 || hbHold())
+    output(false);
+}
+
+void Actor::output(const bool &on)
+{
   if (isPin(pin_actor))
-  {
-    if (isOn && power_actor > 0 && !hbHold())
-    {
-      if (millis() > powerLast + DUTYCYLCE)
-      {
-        powerLast = millis();
-        // DEBUG_VERBOSE("ACT", "powerlast: %lu ms", powerLast);
-      }
-      if (millis() > powerLast + (DUTYCYLCE * power_actor / 100L))
-      {
-        digitalWrite(pin_actor, OFF);
-#ifdef ESP32
-        DEBUG_VERBOSE("ACT", "%s off: %d %\t%s\t%s\t%lu ms", name_actor.c_str(), power_actor, PinToString(pin_actor).c_str(), argument_actor.c_str(), powerLast);
-#endif
-      }
-      else
-      {
-        digitalWrite(pin_actor, ON);
-#ifdef ESP32
-        DEBUG_VERBOSE("ACT", "%s on %d %\t%s\t%s\t%lu ms", name_actor.c_str(), power_actor, PinToString(pin_actor).c_str(), argument_actor.c_str(), powerLast);
-#endif
-      }
-    }
-    else
-    {
-      digitalWrite(pin_actor, OFF);
-    }
-  }
+    digitalWrite(pin_actor, on ? ON : OFF);
 }
 
 void Actor::change(const int8_t &pin, const String &argument, const String &aname, const bool &ainverted, const bool &aswitchable)
@@ -202,6 +179,53 @@ void Actor::setOldIsOn()
 {
   old_isOn = isOn;
 }
+uint8_t Actor::getGroup()
+{
+  return group;
+}
+void Actor::setGroup(const uint8_t &val)
+{
+  group = val;
+}
+uint8_t Actor::getRequest() // power this actor is asking for right now
+{
+  return (isOn && !hbHold()) ? power_actor : 0;
+}
+uint8_t Actor::getAppliedPower()
+{
+  return power_applied;
+}
+void Actor::setAppliedPower(const uint8_t &val)
+{
+  power_applied = val;
+}
+
+// Software PWM for every actor on one shared period (DUTYCYLCE). Actors in the same
+// power-share group split 100 % between them, like a Brewblox Balancer + Mutex; the
+// windows come from pwmSchedule(). Offs are written before ons, so a group never has
+// two actors on together however late this runs.
+void updateActorsPWM()
+{
+  const unsigned long period = max((int64_t)1000, DUTYCYLCE);
+  const unsigned long phase = millis() % period; // ponytail: one short period at the 49-day millis() wrap
+  uint8_t req[NUMBEROFACTORSMAX], grp[NUMBEROFACTORSMAX];
+  unsigned long start[NUMBEROFACTORSMAX], len[NUMBEROFACTORSMAX];
+  for (uint8_t i = 0; i < numberOfActors; i++)
+  {
+    req[i] = actors[i].getRequest();
+    grp[i] = actors[i].getGroup();
+  }
+  pwmSchedule(period, pwmDeadTime, numberOfActors, req, grp, start, len);
+  for (uint8_t i = 0; i < numberOfActors; i++)
+  {
+    actors[i].setAppliedPower(len[i] * 100 / period);
+    if (!pwmIsOn(phase, start[i], len[i]))
+      actors[i].output(false);
+  }
+  for (uint8_t i = 0; i < numberOfActors; i++)
+    if (pwmIsOn(phase, start[i], len[i]))
+      actors[i].output(true);
+}
 
 // Funktionen für Loop im Timer Objekt
 void handleActors(bool checkAct)
@@ -209,20 +233,24 @@ void handleActors(bool checkAct)
   // checkAct true: init
   // checkAct false: only updates
 
+  static uint8_t oldApplied[NUMBEROFACTORSMAX];
   JsonDocument ssedoc;
   // JsonArray sseArray = ssedoc.to<JsonArray>();
   for (uint8_t i = 0; i < numberOfActors; i++)
   {
     actors[i].Update();
-    if (actors[i].getOldIsOn() != actors[i].getIsOn())
+    if (actors[i].getOldIsOn() != actors[i].getIsOn() || oldApplied[i] != actors[i].getAppliedPower())
     {
       actors[i].setOldIsOn();
+      oldApplied[i] = actors[i].getAppliedPower();
       checkAct = true;
     }
     JsonObject sseObj = ssedoc.add<JsonObject>();
     sseObj["name"] = actors[i].getActorName();
     sseObj["ison"] = actors[i].getIsOn();
     sseObj["power"] = actors[i].getActorPower();
+    sseObj["apw"] = actors[i].getAppliedPower();
+    sseObj["grp"] = actors[i].getGroup();
     sseObj["mqtt"] = actors[i].getActorTopic();
     sseObj["state"] = actors[i].getActorState();
     sseObj["pin"] = PinToString(actors[i].getPinActor());
@@ -255,6 +283,8 @@ void handleRequestActors()
       actorsObj["mqtt"] = actors[i].getActorTopic();
       actorsObj["pin"] = actors[i].getPinActor();
       actorsObj["sw"] = actors[i].getActorSwitch();
+      actorsObj["grp"] = actors[i].getGroup();
+      actorsObj["apw"] = actors[i].getAppliedPower();
       actorsObj["state"] = actors[i].getActorState();
       yield();
     }
@@ -265,6 +295,7 @@ void handleRequestActors()
     doc["mqtt"] = actors[id].getActorTopic();
     doc["sw"] = actors[id].getActorSwitch();
     doc["inv"] = actors[id].getInverted();
+    doc["grp"] = actors[id].getGroup();
   }
 
   char response[measureJson(doc) + 1];
@@ -299,6 +330,7 @@ void handleSetActor()
     numberOfActors++;
   }
   actors[id].change(StringToPin(doc["pin"]), doc["mqtt"], doc["name"], doc["inv"], doc["sw"]);
+  actors[id].setGroup(doc["grp"] | 0);
   server.send(200);
   saveConfig();
   handleActors(true);
@@ -334,10 +366,12 @@ void handleDelActor()
     if (i == (NUMBEROFACTORSMAX - 1)) // 5 - Array von 0 bis (NUMBEROFACTORSMAX-1)
     {
       actors[i].change(-100, "", "", false, false);
+      actors[i].setGroup(0);
     }
     else
     {
       actors[i].change(actors[i + 1].getPinActor(), actors[i + 1].getActorTopic(), actors[i + 1].getActorName(), actors[i + 1].getInverted(), actors[i + 1].getActorSwitch());
+      actors[i].setGroup(actors[i + 1].getGroup());
     }
     yield();
   }
