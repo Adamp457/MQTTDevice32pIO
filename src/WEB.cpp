@@ -339,12 +339,15 @@ void handleSetMisc()
   PIN_BUZZER = StringToPin(doc["buz"]);
   pins_used[PIN_BUZZER] = true;
 
+  // The UI gets an empty password from /reqMisc, so an empty one keeps the stored
+  // password, but only for the same broker and user: otherwise anyone who can reach
+  // /setMisc could point the device at their own broker and collect the password.
+  bool sameBroker = mqttport == (int)doc["mqttport"] && strcmp(mqtthost, doc["mqtthost"] | "") == 0 &&
+                    strcmp(mqttuser, doc["mqttuser"] | "") == 0;
   mqttport = doc["mqttport"];
   strlcpy(mqtthost, doc["mqtthost"] | "", maxHostSign);
   strlcpy(mqttuser, doc["mqttuser"] | "", maxUserSign);
-  // The UI gets an empty password from /reqMisc, so empty means "unchanged".
-  // ponytail: a password can't be cleared from the UI any more; clear the config to remove it.
-  if (strlen(doc["mqttpass"] | "") > 0)
+  if (strlen(doc["mqttpass"] | "") > 0 || !sameBroker)
     strlcpy(mqttpass, doc["mqttpass"] | "", maxPassSign);
 
   mqttBuzzer = doc["mqbuz"];
