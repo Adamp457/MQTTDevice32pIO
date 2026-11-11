@@ -20,6 +20,10 @@ IDS2 induction hob to CraftBeerPi 4 over MQTT.
   `docs/power-groups.md`). Grouped actors publish their applied % to `<actor topic>/applied`. `Actor::Update()` now only switches off. All switching on
   goes through the scheduler, which writes offs before ons. Keep it that way, because
   that ordering is the interlock.
+- **Broker password not served** (`src/WEB.cpp`, `src/CONFIGFILE.cpp`): `/reqMisc`
+  has no authentication, so it returns an empty `pass`; a save with an empty
+  password keeps the stored one, and the debug log masks it. Clearing a password
+  now needs a config reset. Built for ESP32_IDF5 2026-11-11; not yet flashed.
 - **Editable web UI**: `web/index.htm` (minified, unpacked from upstream's blob) is the
   source. `tools/build_web.py` regenerates `include/index_htm.h` before every build.
   Never hand-edit the header. Upstream gitignores `web/` and `test/`; the fork tracks both.

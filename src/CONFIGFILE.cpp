@@ -68,7 +68,7 @@ bool loadConfig()
   DEBUG_INFO("CFG", "Buzzer: %d mqttBuzzer: %d", PIN_BUZZER, mqttBuzzer);
   DEBUG_INFO("CFG", "Display: %d startPage: %d Fermenter: %d", useDisplay, startPage, useFerm);
   DEBUG_INFO("CFG", "mDNS: %d name: %s", startMDNS, nameMDNS);
-  DEBUG_INFO("CFG", "MQTT server IP: %s Port: %d User: %s Pass: %s", mqtthost, mqttport, mqttuser, mqttpass);
+  DEBUG_INFO("CFG", "MQTT server IP: %s Port: %d User: %s Pass: %s", mqtthost, mqttport, mqttuser, strlen(mqttpass) ? "***" : "");
   DEBUG_INFO("CFG", TRENNLINIE);
 #endif
   // read actors
@@ -301,7 +301,7 @@ bool saveConfig()
   DEBUG_INFO("CFG", "Switch off actors on error enabled after %ul sec", (wait_on_error_mqtt / 1000));
   DEBUG_INFO("CFG", "Display: %d startPage: %d Fermenter: %d", useDisplay, startPage, useFerm);
   DEBUG_INFO("CFG", "DevBranch: %d", devBranch);
-  DEBUG_INFO("CFG", "MQTT broker IP: %s Port: %d User: %s Pass: %s", mqtthost, mqttport, mqttuser, mqttpass);
+  DEBUG_INFO("CFG", "MQTT broker IP: %s Port: %d User: %s Pass: %s", mqtthost, mqttport, mqttuser, strlen(mqttpass) ? "***" : "");
   DEBUG_INFO("CFG", TRENNLINIE);
 #endif
   File configFile = LittleFS.open(CONFIG, "w");

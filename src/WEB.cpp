@@ -173,7 +173,7 @@ void handleRequestMisc()
   doc["host"] = mqtthost;
   doc["port"] = mqttport;
   doc["user"] = mqttuser;
-  doc["pass"] = mqttpass;
+  doc["pass"] = ""; // never send the broker password: /reqMisc has no authentication
   doc["mdns_name"] = nameMDNS;
   doc["mdns"] = startMDNS;
   doc["mqbuz"] = mqttBuzzer;
@@ -342,7 +342,10 @@ void handleSetMisc()
   mqttport = doc["mqttport"];
   strlcpy(mqtthost, doc["mqtthost"] | "", maxHostSign);
   strlcpy(mqttuser, doc["mqttuser"] | "", maxUserSign);
-  strlcpy(mqttpass, doc["mqttpass"] | "", maxPassSign);
+  // The UI gets an empty password from /reqMisc, so empty means "unchanged".
+  // ponytail: a password can't be cleared from the UI any more; clear the config to remove it.
+  if (strlen(doc["mqttpass"] | "") > 0)
+    strlcpy(mqttpass, doc["mqttpass"] | "", maxPassSign);
 
   mqttBuzzer = doc["mqbuz"];
   senRes = doc["res"];
