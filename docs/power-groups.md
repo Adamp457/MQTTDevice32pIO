@@ -37,6 +37,14 @@ period 5 s:  HLT ████████░░░░░░░░░░   BK ░
 The actor list shows a scaled request as `ON: 70% → 54%`. `/reqActors` reports
 `grp` and `apw` (the applied %).
 
+## Showing applied power in CBPi
+
+Every grouped actor publishes `{"apw": N}` to `<actor topic>/applied` each
+actor tick (1 s). The message isn't retained. In CBPi, add a stock
+**MQTTSensor** with Topic `<actor topic>/applied` and PayloadDictionary `apw`.
+Put it on the kettle or fermenter card next to the actor. If it reads below the
+actor's power, the device is throttling that actor.
+
 ## Guarantees and limits
 
 - **No overlap within a group, by construction.** Windows never intersect, and
@@ -46,7 +54,8 @@ The actor list shows a scaled request as `ON: 70% → 54%`. `/reqActors` reports
   sweeps every millisecond of the period to check this.
 - **Resolution** is about 20 ms, i.e. 0.4 % of a 5 s period. That's up from
   20 % steps before, when actors only updated on the 1 s actor tick.
-- **CBPi shows the requested power**, not the scaled one.
+- **CBPi's actor shows the requested power**, not the scaled one. To show the
+  applied power, see the section above.
 - **Not a load limiter.** This firmware can't stop anything outside its own
   actors, such as a kettle on the same circuit. Size the circuit protection for
   the worst case anyway.

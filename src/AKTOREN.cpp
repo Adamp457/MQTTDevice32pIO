@@ -254,6 +254,15 @@ void handleActors(bool checkAct)
     sseObj["mqtt"] = actors[i].getActorTopic();
     sseObj["state"] = actors[i].getActorState();
     sseObj["pin"] = PinToString(actors[i].getPinActor());
+    // Power-share feedback for CBPi: applied % on <actor topic>/applied, every actor tick,
+    // read in CBPi with a stock MQTTSensor (PayloadDictionary "apw"). Not retained, so a
+    // dead device can't leave a value on the broker.
+    if (actors[i].getGroup() > 0 && pubsubClient.connected() && actors[i].getActorTopic().length() > 0)
+    {
+      char msg[24];
+      snprintf(msg, sizeof(msg), "{\"apw\": %u}", actors[i].getAppliedPower());
+      pubsubClient.publish((actors[i].getActorTopic() + "/applied").c_str(), msg);
+    }
     yield();
   }
 

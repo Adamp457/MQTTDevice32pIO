@@ -17,7 +17,7 @@ IDS2 induction hob to CraftBeerPi 4 over MQTT.
 
 - **Power-share groups and shared-period PWM** (`include/PWMSCHEDULE.h`, called by
   `updateActorsPWM()` in `src/AKTOREN.cpp` every 20 ms from `loop()`; docs in
-  `docs/power-groups.md`). `Actor::Update()` now only switches off. All switching on
+  `docs/power-groups.md`). Grouped actors publish their applied % to `<actor topic>/applied`. `Actor::Update()` now only switches off. All switching on
   goes through the scheduler, which writes offs before ons. Keep it that way, because
   that ordering is the interlock.
 - **Editable web UI**: `web/index.htm` (minified, unpacked from upstream's blob) is the
